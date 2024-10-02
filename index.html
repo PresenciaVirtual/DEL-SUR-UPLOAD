@@ -1,74 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subir Imagen a Firebase</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subir datos a Firebase</title>
+  <script type="module">
+    // Importar las funciones necesarias de Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
+
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDSWukEbEDngjrQoXUoy5FzVHS-W64osdY",
+      authDomain: "delsur-30194.firebaseapp.com",
+      databaseURL: "https://delsur-30194-default-rtdb.firebaseio.com",
+      projectId: "delsur-30194",
+      storageBucket: "delsur-30194.appspot.com",
+      messagingSenderId: "384760703892",
+      appId: "1:384760703892:web:f1f7f59699714334ae3d81",
+      measurementId: "G-H90YGKSPL4"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.getElementById('dataForm');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Obtener valores de los inputs
+        const title = document.getElementById('title').value;
+        const detail = document.getElementById('detail').value;
+        const images = document.getElementById('images').files;
+
+        // Arreglo para almacenar las URLs de las imágenes
+        const imageUrls = [];
+
+        // Subir imágenes a Firebase Storage
+        for (let i = 0; i < images.length; i++) {
+          const imageFile = images[i];
+          const storageRef = ref(storage, `images/${imageFile.name}`);
+          await uploadBytes(storageRef, imageFile);
+          const imageUrl = await getDownloadURL(storageRef);
+          imageUrls.push(imageUrl);
+        }
+
+        // Guardar datos en Firestore
+        try {
+          const docRef = await addDoc(collection(db, "posts"), {
+            title: title,
+            detail: detail,
+            images: imageUrls
+          });
+          alert('Datos subidos exitosamente. ID del documento: ' + docRef.id);
+        } catch (e) {
+          console.error('Error al subir los datos: ', e);
+          alert('Hubo un error al subir los datos.');
+        }
+      });
+    });
+  </script>
 </head>
 <body>
-    <h1>Subir Imagen a Firebase</h1>
-
-    <!-- Input de imagen -->
-    <input type="file" id="imageInput" accept="image/*">
-    <button id="uploadButton">Subir Imagen</button>
-
-    <script type="module">
-        // Importar las funciones necesarias desde Firebase SDK
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
-
-        // Configuración de Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyDSWukEbEDngjrQoXUoy5FzVHS-W64osdY",
-            authDomain: "delsur-30194.firebaseapp.com",
-            databaseURL: "https://delsur-30194-default-rtdb.firebaseio.com",
-            projectId: "delsur-30194",
-            storageBucket: "delsur-30194.appspot.com",
-            messagingSenderId: "384760703892",
-            appId: "1:384760703892:web:f1f7f59699714334ae3d81",
-            measurementId: "G-H90YGKSPL4"
-        };
-
-        // Inicializar Firebase
-        const app = initializeApp(firebaseConfig);
-        const storage = getStorage(app);
-
-        // Elementos del DOM
-        const imageInput = document.getElementById('imageInput');
-        const uploadButton = document.getElementById('uploadButton');
-
-        // Función para subir la imagen a Firebase Storage
-        uploadButton.addEventListener('click', () => {
-            const file = imageInput.files[0];
-            if (!file) {
-                alert("Selecciona una imagen primero.");
-                return;
-            }
-
-            // Referencia al storage donde se guardará la imagen
-            const storageRef = ref(storage, 'images/' + file.name);
-            const uploadTask = uploadBytesResumable(storageRef, file);
-
-            // Monitorear el estado de la subida
-            uploadTask.on('state_changed', 
-                (snapshot) => {
-                    // Progreso de la subida
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    console.log('Subida en progreso: ' + progress + '%');
-                }, 
-                (error) => {
-                    // Manejo de errores
-                    console.error('Error subiendo la imagen:', error);
-                }, 
-                () => {
-                    // Obtener la URL de descarga una vez que la imagen ha sido subida
-                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        console.log('Imagen disponible en:', downloadURL);
-                        alert('Imagen subida exitosamente!');
-                    });
-                }
-            );
-        });
-    </script>
+  <h1>Subir datos a Firebase</h1>
+  <form id="dataForm">
+    <div>
+      <label for="title">Título:</label>
+      <input type="text" id="title" required>
+    </div>
+    <div>
+      <label for="detail">Detalle:</label>
+      <textarea id="detail" required></textarea>
+    </div>
+    <div>
+      <label for="images">Seleccionar imágenes:</label>
+      <input type="file" id="images" multiple required>
+    </div>
+    <button type="submit">Subir</button>
+  </form>
 </body>
 </html>
