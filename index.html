@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Subir datos a Firebase Realtime Database</title>
+  <title>Subir y eliminar datos en Firebase Realtime Database</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -14,6 +14,7 @@
       align-items: center;
       height: 100vh;
       margin: 0;
+      flex-direction: column;
     }
     
     h1 {
@@ -29,6 +30,7 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       max-width: 400px;
       width: 100%;
+      margin-bottom: 20px;
     }
 
     label {
@@ -66,33 +68,26 @@
       background-color: #218838;
     }
 
-    .form-group {
-      margin-bottom: 15px;
+    .delete-form {
+      max-width: 400px;
+      width: 100%;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .form-group:last-child {
-      margin-bottom: 0;
+    .delete-button {
+      background-color: #dc3545;
     }
 
-    .file-input-label {
-      display: block;
-      margin-bottom: 10px;
-      color: #555;
-    }
-
-    @media (max-width: 600px) {
-      form {
-        padding: 15px;
-      }
-
-      h1 {
-        font-size: 1.5rem;
-      }
+    .delete-button:hover {
+      background-color: #c82333;
     }
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getDatabase, ref as dbRef, push, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+    import { getDatabase, ref as dbRef, push, set, remove, get } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
     import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
 
     const firebaseConfig = {
@@ -112,7 +107,9 @@
 
     document.addEventListener('DOMContentLoaded', function () {
       const form = document.getElementById('dataForm');
+      const deleteForm = document.getElementById('deleteForm');
 
+      // Subir datos a Firebase
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -143,6 +140,30 @@
           alert('Hubo un error al subir los datos.');
         }
       });
+
+      // Eliminar datos de Firebase
+      deleteForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const indexToDelete = parseInt(document.getElementById('deleteIndex').value);
+
+        try {
+          const postsSnapshot = await get(dbRef(db, 'posts'));
+          const posts = postsSnapshot.val();
+          const keys = Object.keys(posts);
+
+          if (indexToDelete > 0 && indexToDelete <= keys.length) {
+            const keyToDelete = keys[keys.length - indexToDelete]; // Obtiene la clave correcta
+            await remove(dbRef(db, `posts/${keyToDelete}`));
+            alert(`Se eliminó el elemento número ${indexToDelete} exitosamente.`);
+          } else {
+            alert('Índice fuera de rango.');
+          }
+        } catch (e) {
+          console.error('Error al eliminar el dato: ', e);
+          alert('Hubo un error al eliminar el dato.');
+        }
+      });
     });
   </script>
 </head>
@@ -162,6 +183,15 @@
       <input type="file" id="images" multiple required>
     </div>
     <button type="submit">Subir</button>
+  </form>
+
+  <form id="deleteForm" class="delete-form">
+    <h1>Eliminar datos de Firebase</h1>
+    <div class="form-group">
+      <label for="deleteIndex">Número de tarjeta a eliminar:</label>
+      <input type="number" id="deleteIndex" placeholder="Ingresa el número" required min="1">
+    </div>
+    <button type="submit" class="delete-button">Eliminar</button>
   </form>
 </body>
 </html>
