@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Subir y eliminar datos en Firebase Realtime Database</title>
+  <title>DEL SUR</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -134,7 +134,7 @@
             detail: detail,
             images: imageUrls
           });
-          alert('Datos subidos exitosamente.');
+          alert('Datos subidos exitosamente !');
         } catch (e) {
           console.error('Error al subir los datos: ', e);
           alert('Hubo un error al subir los datos.');
@@ -169,7 +169,7 @@
 </head>
 <body>
   <form id="dataForm">
-    <h1>Subir datos a Firebase</h1>
+    <h1>Subir Auto</h1>
     <div class="form-group">
       <label for="title">Título:</label>
       <input type="text" id="title" placeholder="Ingresa un título" required>
@@ -186,10 +186,10 @@
   </form>
 
   <form id="deleteForm" class="delete-form">
-    <h1>Eliminar datos de Firebase</h1>
+    <h1>Eliminar Auto</h1>
     <div class="form-group">
       <label for="deleteIndex">Número de tarjeta a eliminar:</label>
-      <input type="number" id="deleteIndex" placeholder="Ingresa el número" required min="1">
+      <input type="number" id="deleteIndex" placeholder="Ingresa el índice de abajo para arriba" required min="1">
     </div>
     <button type="submit" class="delete-button">Eliminar</button>
   </form>
