@@ -4,13 +4,97 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Subir datos a Firebase Realtime Database</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    
+    h1 {
+      color: #333;
+      font-size: 2rem;
+      text-align: center;
+    }
+
+    form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    label {
+      font-weight: 500;
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    input[type="text"],
+    textarea,
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      background-color: #28a745;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .file-input-label {
+      display: block;
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    @media (max-width: 600px) {
+      form {
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
   <script type="module">
-    // Importar las funciones necesarias de Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import { getDatabase, ref as dbRef, push, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
     import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
 
-    // Configuración de Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyDSWukEbEDngjrQoXUoy5FzVHS-W64osdY",
       authDomain: "delsur-30194.firebaseapp.com",
@@ -22,7 +106,6 @@
       measurementId: "G-H90YGKSPL4"
     };
 
-    // Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const storage = getStorage(app);
@@ -33,15 +116,12 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Obtener valores de los inputs
         const title = document.getElementById('title').value;
         const detail = document.getElementById('detail').value;
         const images = document.getElementById('images').files;
 
-        // Arreglo para almacenar las URLs de las imágenes
         const imageUrls = [];
 
-        // Subir imágenes a Firebase Storage
         for (let i = 0; i < images.length; i++) {
           const imageFile = images[i];
           const storageReference = storageRef(storage, `images/${imageFile.name}`);
@@ -50,7 +130,6 @@
           imageUrls.push(imageUrl);
         }
 
-        // Guardar datos en Realtime Database
         try {
           const newPostRef = push(dbRef(db, 'posts'));
           await set(newPostRef, {
@@ -68,18 +147,18 @@
   </script>
 </head>
 <body>
-  <h1>Subir datos a Firebase</h1>
   <form id="dataForm">
-    <div>
+    <h1>Subir datos a Firebase</h1>
+    <div class="form-group">
       <label for="title">Título:</label>
-      <input type="text" id="title" required>
+      <input type="text" id="title" placeholder="Ingresa un título" required>
     </div>
-    <div>
+    <div class="form-group">
       <label for="detail">Detalle:</label>
-      <textarea id="detail" required></textarea>
+      <textarea id="detail" placeholder="Ingresa un detalle" rows="4" required></textarea>
     </div>
-    <div>
-      <label for="images">Seleccionar imágenes:</label>
+    <div class="form-group">
+      <label for="images" class="file-input-label">Seleccionar imágenes:</label>
       <input type="file" id="images" multiple required>
     </div>
     <button type="submit">Subir</button>
